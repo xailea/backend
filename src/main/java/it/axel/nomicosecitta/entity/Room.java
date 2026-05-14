@@ -22,6 +22,12 @@ public class Room {
     @Column(nullable = false)
     private Instant createdAt = Instant.now();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Player winner;
+
+    @Column(nullable = false)
+    private boolean draw = false;
+
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Player> players = new ArrayList<>();
 
@@ -34,6 +40,10 @@ public class Room {
     public RoomStatus getStatus() { return status; }
     public void setStatus(RoomStatus status) { this.status = status; }
     public Instant getCreatedAt() { return createdAt; }
+    public Player getWinner() { return winner; }
+    public void setWinner(Player winner) { this.winner = winner; }
+    public boolean isDraw() { return draw; }
+    public void setDraw(boolean draw) { this.draw = draw; }
     public List<Player> getPlayers() { return players; }
     public List<GameCategory> getCategories() { return categories; }
 }

@@ -37,15 +37,30 @@ public class RoomController {
         return roomService.startRound(roomCode, request);
     }
 
+    @PostMapping("/rounds/{roundId}/answers")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void submitAnswers(@PathVariable Long roundId, @Valid @RequestBody SubmitAnswersRequest request) {
+        roomService.submitAnswers(roundId, request);
+    }
+
+    @PostMapping("/rounds/{roundId}/validations")
+    public RoundResponse submitValidations(@PathVariable Long roundId, @Valid @RequestBody SubmitValidationsRequest request) {
+        return roomService.submitValidations(roundId, request);
+    }
+
+    @PostMapping("/rounds/{roundId}/validations/ready")
+    public RoundResponse markValidationReady(@PathVariable Long roundId, @Valid @RequestBody ValidationReadyRequest request) {
+        return roomService.markValidationReady(roundId, request);
+    }
+
     @PostMapping("/rooms/{roomCode}/cancel")
     public RoomResponse cancelRoom(@PathVariable String roomCode, @Valid @RequestBody CancelRoomRequest request) {
         return roomService.cancelRoom(roomCode, request);
     }
 
-    @PostMapping("/rounds/{roundId}/answers")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void submitAnswers(@PathVariable Long roundId, @Valid @RequestBody SubmitAnswersRequest request) {
-        roomService.submitAnswers(roundId, request);
+    @PostMapping("/rooms/{roomCode}/finish")
+    public RoomResponse finishRoom(@PathVariable String roomCode, @Valid @RequestBody FinishRoomRequest request) {
+        return roomService.finishRoom(roomCode, request);
     }
 
     @PostMapping("/rounds/{roundId}/end")
