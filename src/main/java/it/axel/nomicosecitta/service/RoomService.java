@@ -514,19 +514,29 @@ public class RoomService {
         Map<Long, List<AnswerValidation>> validationsByAnswerId = validations.stream()
                 .collect(Collectors.groupingBy(v -> v.getAnswer().getId()));
 
+        // Raggruppa SOLO le risposte accettate per categoria+valore
         Map<String, List<Answer>> validAnswersByCategoryAndValue = answers.stream()
                 .filter(answer -> isAccepted(answer, validationsByAnswerId.getOrDefault(answer.getId(), List.of())))
                 .filter(answer -> !clean(answer.getAnswer()).isBlank())
-                .collect(Collectors.groupingBy(answer -> answer.getCategory().getId() + "::" + normalize(answer.getAnswer())));
+                .collect(Collectors.groupingBy(answer ->
+                        answer.getCategory().getId() + "::" + normalize(answer.getAnswer())));
 
         for (Answer answer : answers) {
             List<AnswerValidation> answerValidations = validationsByAnswerId.getOrDefault(answer.getId(), List.of());
+
+            // Questa risposta è accettata?
             if (!isAccepted(answer, answerValidations) || clean(answer.getAnswer()).isBlank()) {
                 answer.setPoints(0);
             } else {
                 String key = answer.getCategory().getId() + "::" + normalize(answer.getAnswer());
-                int sameAnswerCount = validAnswersByCategoryAndValue.getOrDefault(key, List.of()).size();
-                answer.setPoints(sameAnswerCount > 1 ? 5 : 10);
+                List<Answer> sameAnswers = validAnswersByCategoryAndValue.getOrDefault(key, List.of());
+
+                // Conta quante risposte uguali appartengono ad ALTRI giocatori (non a se stesso)
+                long othersWithSameAnswer = sameAnswers.stream()
+                        .filter(a -> !Objects.equals(a.getPlayer().getId(), answer.getPlayer().getId()))
+                        .count();
+
+                answer.setPoints(othersWithSameAnswer > 0 ? 5 : 10);
             }
             answerRepository.save(answer);
         }
