@@ -125,7 +125,7 @@ public class RoomService {
 
         Round round = new Round();
         round.setRoom(room);
-        round.setLetter(randomLetter());
+        round.setLetter(randomLetter(room));
         round.setStatus(RoundStatus.IN_PROGRESS);
         roundRepository.save(round);
 
@@ -647,9 +647,22 @@ public class RoomService {
         return code;
     }
 
-    private String randomLetter() {
-        int index = new Random().nextInt(LETTERS.length());
-        return String.valueOf(LETTERS.charAt(index));
+    private String randomLetter(Room room) {
+        Set<String> usedLetters = roundRepository.findByRoom(room).stream()
+                .map(Round::getLetter)
+                .collect(Collectors.toSet());
+
+        List<String> availableLetters = LETTERS.chars()
+                .mapToObj(letter -> String.valueOf((char) letter))
+                .filter(letter -> !usedLetters.contains(letter))
+                .toList();
+
+        if (availableLetters.isEmpty()) {
+            throw new ResponseStatusException(BAD_REQUEST, "Tutte le lettere sono già state estratte");
+        }
+
+        int index = new Random().nextInt(availableLetters.size());
+        return availableLetters.get(index);
     }
 
     private String clean(String value) {
