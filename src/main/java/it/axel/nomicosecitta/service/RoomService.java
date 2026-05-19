@@ -16,7 +16,7 @@ import static org.springframework.http.HttpStatus.*;
 
 @Service
 public class RoomService {
-    private static final String LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private static final String LETTERS = "ABCDEFGHILMNOPQRSTUVZ";
     private static final int ROUND_SECONDS = 120;
 
     private final RoomRepository roomRepository;
